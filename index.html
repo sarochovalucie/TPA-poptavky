@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit bez překvapení | TPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #1D9E75;
+  --green-dark: #0F6E56;
+  --green-deep: #074a3c;
+  --green-light: #e6f7f1;
+  --green-mid: #9FE1CB;
+  --ink: #111a15;
+  --ink-soft: #3a5044;
+  --muted: #6b7f76;
+  --border: #d8ece4;
+  --cream: #f7faf8;
+  --white: #ffffff;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 6%; height: 68px;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem; font-weight: 700;
+  color: var(--green-dark); text-decoration: none;
+  letter-spacing: -0.03em;
+}
+.nav-cta {
+  background: var(--green); color: white;
+  padding: 10px 24px; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 600;
+  text-decoration: none; transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--green-dark); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 110px 6% 80px;
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+}
+
+.hero-bg-lines {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.hero-bg-lines::before {
+  content: '';
+  position: absolute; top: -200px; right: -100px;
+  width: 700px; height: 700px; border-radius: 50%;
+  border: 1px solid rgba(29,158,117,0.12);
+}
+.hero-bg-lines::after {
+  content: '';
+  position: absolute; top: -100px; right: 100px;
+  width: 450px; height: 450px; border-radius: 50%;
+  border: 1px solid rgba(29,158,117,0.08);
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--green-mid); font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  margin-bottom: 28px;
+}
+.hero-tag::before {
+  content: ''; display: block;
+  width: 28px; height: 1px; background: var(--green);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 5.5vw, 5rem);
+  font-weight: 700; line-height: 1.1;
+  color: white; letter-spacing: -0.03em;
+  max-width: 780px; margin-bottom: 32px;
+}
+
+.hero h1 em {
+  font-style: italic; color: var(--green-mid);
+}
+
+.hero-sub {
+  font-size: 1.1rem; color: rgba(255,255,255,0.55);
+  max-width: 520px; line-height: 1.7; margin-bottom: 48px;
+  font-weight: 300;
+}
+
+.hero-cta-group { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+
+.btn-primary {
+  display: inline-block;
+  background: var(--green); color: white;
+  padding: 16px 38px; border-radius: 100px;
+  font-size: 1rem; font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 12px 32px rgba(29,158,117,0.35);
+}
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); }
+
+.hero-cta-note {
+  font-size: 0.82rem; color: rgba(255,255,255,0.35);
+}
+
+.hero-scroll {
+  position: absolute; bottom: 40px; left: 6%;
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(255,255,255,0.3); font-size: 0.75rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.hero-scroll::before {
+  content: '';
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3));
+}
+
+/* ─── SECTION BASE ─── */
+section { padding: 100px 6%; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.eyebrow {
+  font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--green); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--green); }
+
+h2.display {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.02em; color: var(--ink);
+  margin-bottom: 20px;
+}
+
+/* ─── IDENTIFICATION ─── */
+.ident-section { background: var(--cream); }
+
+.ident-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: start;
+  margin-top: 64px;
+}
+
+.ident-questions { display: flex; flex-direction: column; gap: 0; }
+
+.ident-q {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem; color: var(--ink-soft);
+  line-height: 1.6;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: color 0.2s;
+}
+.ident-q:first-child { border-top: 1px solid var(--border); }
+.ident-q:hover { color: var(--ink); }
+
+.ident-q .dash {
+  color: var(--green); font-weight: 700;
+  flex-shrink: 0; margin-top: 2px;
+}
+
+.ident-conclusion {
+  background: var(--ink);
+  border-radius: 20px; padding: 40px;
+  position: sticky; top: 100px;
+}
+
+.ident-conclusion p {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem; font-style: italic;
+  color: white; line-height: 1.5; margin-bottom: 24px;
+}
+
+.ident-conclusion .sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-style: normal;
+  color: rgba(255,255,255,0.5); line-height: 1.6;
+}
+
+/* ─── DESIRE ─── */
+.desire-section { background: white; }
+
+.desire-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-top: 56px;
+}
+
+.desire-card {
+  border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 32px 28px;
+  transition: border-color 0.25s, transform 0.25s;
+  position: relative; overflow: hidden;
+}
+.desire-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--green); transform: scaleX(0);
+  transform-origin: left; transition: transform 0.3s;
+}
+.desire-card:hover { border-color: var(--green); transform: translateY(-4px); }
+.desire-card:hover::before { transform: scaleX(1); }
+
+.desire-card .icon {
+  font-size: 1.6rem; margin-bottom: 18px; display: block;
+}
+.desire-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 10px; line-height: 1.3;
+}
+.desire-card p {
+  font-size: 0.88rem; color: var(--muted); line-height: 1.65;
+}
+
+/* ─── PAIN ─── */
+.pain-section { background: var(--green-deep); position: relative; overflow: hidden; }
+.pain-section::before {
+  content: '';
+  position: absolute; top: -200px; right: -200px;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: rgba(29,158,117,0.06); pointer-events: none;
+}
+
+.pain-section .eyebrow { color: var(--green-mid); }
+.pain-section .eyebrow::before { background: var(--green-mid); }
+.pain-section h2.display { color: white; }
+
+.pain-intro {
+  font-size: 1.05rem; color: rgba(255,255,255,0.55);
+  max-width: 560px; line-height: 1.7; margin-bottom: 56px;
+  font-weight: 300;
+}
+
+.pain-list {
+  display: flex; flex-direction: column; gap: 0;
+  max-width: 700px;
+}
+
+.pain-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  opacity: 0; transform: translateX(-16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.pain-item:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+.pain-item.visible { opacity: 1; transform: translateX(0); }
+
+.pain-item .num {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--green); opacity: 0.6;
+  margin-top: 4px; flex-shrink: 0; width: 20px;
+}
+.pain-item p {
+  font-size: 0.98rem; color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+.pain-item p strong { color: white; font-weight: 600; }
+
+.pain-bridge {
+  margin-top: 56px;
+  background: rgba(29,158,117,0.12);
+  border: 1px solid rgba(29,158,117,0.2);
+  border-radius: 16px; padding: 32px 36px;
+  max-width: 700px;
+}
+.pain-bridge p {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; font-style: italic;
+  color: white; line-height: 1.5;
+}
+
+/* ─── SERVICES ─── */
+.services-section { background: var(--cream); }
+
+.services-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 20px; margin-top: 56px;
+}
+
+.service-card {
+  background: white; border-radius: 18px;
+  padding: 32px; border: 1px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.service-card:hover {
+  box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+  transform: translateY(-3px);
+}
+
+.service-card .tag {
+  display: inline-block;
+  background: var(--green-light); color: var(--green-dark);
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 4px 12px; border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.service-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 10px; line-height: 1.3;
+}
+.service-card p {
+  font-size: 0.87rem; color: var(--muted); line-height: 1.65;
+}
+
+/* ─── WHY US ─── */
+.why-section { background: white; }
+
+.why-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center; margin-top: 56px;
+}
+
+.why-list { display: flex; flex-direction: column; gap: 28px; }
+
+.why-item { display: flex; gap: 20px; align-items: flex-start; }
+
+.why-item .num-badge {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: var(--green-dark);
+  flex-shrink: 0;
+}
+
+.why-item h4 {
+  font-weight: 600; font-size: 0.95rem;
+  color: var(--ink); margin-bottom: 4px;
+}
+.why-item p {
+  font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+}
+
+.why-visual {
+  background: var(--ink); border-radius: 24px;
+  padding: 44px; display: flex; flex-direction: column; gap: 20px;
+}
+
+.stat-big {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 20px;
+}
+.stat-big:last-child { border-bottom: none; padding-bottom: 0; }
+
+.stat-big .n {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem; font-weight: 700;
+  color: var(--green-mid); line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-big .l {
+  font-size: 0.83rem; color: rgba(255,255,255,0.45); line-height: 1.4;
+}
+
+/* ─── FORM SECTION ─── */
+.form-section { background: var(--cream); }
+
+.form-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: start;
+}
+
+.form-left h2.display { margin-bottom: 16px; }
+
+.form-left .intro {
+  font-size: 1rem; color: var(--ink-soft);
+  line-height: 1.7; margin-bottom: 36px;
+}
+
+.contact-direct {
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.contact-item {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 0.92rem;
+}
+
+.contact-item .ci-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+
+.contact-item a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.contact-item a:hover { color: var(--green); }
+.contact-item .sub { font-size: 0.78rem; color: var(--muted); }
+
+/* FORM CARD */
+.form-card {
+  background: white; border-radius: 24px;
+  padding: 44px 40px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.07);
+  border: 1px solid var(--border);
+}
+
+.form-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--ink); margin-bottom: 6px;
+}
+.form-card .form-sub {
+  font-size: 0.83rem; color: var(--muted); margin-bottom: 28px;
+}
+
+.fg { margin-bottom: 16px; }
+.fg label {
+  display: block; font-size: 0.8rem; font-weight: 600;
+  color: var(--ink-soft); margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+.fg input, .fg select, .fg textarea {
+  width: 100%; padding: 13px 16px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+  color: var(--ink); background: white; outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  border-color: var(--green);
+}
+.fg input::placeholder, .fg textarea::placeholder { color: #aab8b3; }
+
+.fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.fg textarea { min-height: 100px; }
+
+/* service checkboxes */
+.services-check {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 2px;
+}
+.check-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 14px; border-radius: 8px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-size: 0.82rem; color: var(--ink-soft);
+  user-select: none;
+}
+.check-item input[type="checkbox"] { display: none; }
+.check-item .cb-box {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+.check-item.checked {
+  border-color: var(--green); background: var(--green-light);
+  color: var(--green-dark);
+}
+.check-item.checked .cb-box {
+  background: var(--green); border-color: var(--green);
+}
+.check-item.checked .cb-box::after {
+  content: '✓'; font-size: 0.65rem; color: white; font-weight: 700;
+}
+
+.submit-btn {
+  width: 100%; background: var(--green); color: white;
+  border: none; padding: 16px; border-radius: 100px;
+  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+  cursor: pointer; margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 8px 24px rgba(29,158,117,0.3);
+}
+.submit-btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+.submit-btn:disabled { background: var(--muted); cursor: default; transform: none; box-shadow: none; }
+
+.form-disclaimer {
+  margin-top: 14px; font-size: 0.73rem;
+  color: var(--muted); text-align: center; line-height: 1.5;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink); padding: 40px 6%;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+footer .fl { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--green-mid); font-weight: 700; }
+footer p { font-size: 0.78rem; color: rgba(255,255,255,0.35); }
+footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.78rem; }
+footer a:hover { color: var(--green-mid); }
+
+/* ─── FADE IN ─── */
+.fade { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .ident-grid, .why-grid, .form-layout { grid-template-columns: 1fr; gap: 40px; }
+  .desire-cards { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .services-check { grid-template-columns: 1fr; }
+  .ident-conclusion { position: static; }
+}
+@media (max-width: 600px) {
+  section { padding: 72px 5%; }
+  .hero { padding: 100px 5% 72px; }
+  .fg-row { grid-template-columns: 1fr; }
+  .form-card { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">tpa</a>
+  <a href="#poptavka" class="nav-cta">Poptat audit →</a>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="top">
+  <div class="hero-bg-lines"></div>
+  <div class="hero-tag">Auditní služby · TPA Czech Republic</div>
+  <h1>Účetnictví vypráví<br><em>příběh.</em><br>Audit říká,<br>jestli je pravdivý.</h1>
+  <p class="hero-sub">Audit od TPA není jen zákonná povinnost. Je to jistota, že vaše čísla obstojí – před investory, bankami i vašimi vlastníky.</p>
+  <div class="hero-cta-group">
+    <a href="#poptavka" class="btn-primary">Chci nezávaznou konzultaci</a>
+    <span class="hero-cta-note">Odpovíme do 24 hodin</span>
+  </div>
+  <div class="hero-scroll">Scrollujte dolů</div>
+</section>
+
+<!-- ─── IDENTIFIKACE ─── -->
+<section class="ident-section" id="jste-to-vy">
+  <div class="section-inner">
+    <div class="eyebrow fade">Jste to vy?</div>
+    <h2 class="display fade">Tato stránka je<br>pro konkrétní firmy.</h2>
+
+    <div class="ident-grid">
+      <div class="ident-questions fade">
+        <div class="ident-q">
+          <span class="dash">—</span>
+          <span>Váš podnik ze zákona podléhá auditu – nebo se to brzy změní – a víte, že výběr auditora je rozhodnutí, které nelze udělat na poslední chvíli?</span>
+        </div>
+        <div class="ident-q">
+          <span class="dash">—</span>
+          <span>Expandujete, hledáte investora nebo bankovní financování a potřebujete závěrku, které věří i ti, kteří s vámi nikdy nepracovali?</span>
+        </div>
+        <div class="ident-q">
+          <span class="dash">—</span>
+          <span>Jste součástí nadnárodní skupiny a audit musí splňovat IFRS nebo standardy mateřské společnosti – ne jen českou legislativu?</span>
+        </div>
+        <div class="ident-q">
+          <span class="dash">—</span>
+          <span>Máte pocit, že váš stávající auditor dodává výrok, ale nepřidává žádnou hodnotu navíc – žádné upozornění na rizika, žádnou zpětnou vazbu?</span>
+        </div>
+        <div class="ident-q">
+          <span class="dash">—</span>
+          <span>Chcete auditora, který rozumí vašemu odvětví, mluví jazykem vašeho oboru a umí se bavit o obsahu – ne jen o formě?</span>
+        </div>
+        <div class="ident-q" style="border-bottom:none;">
+          <span class="dash">—</span>
+          <span>Rozhodujete se racionálně, ceníte si přímé komunikace a nechcete měsíce čekat na odpověď?</span>
+        </div>
+      </div>
+
+      <div class="ident-conclusion fade">
+        <p>„Pokud alespoň u dvou z těchto bodů kývete hlavou – jste na správném místě."</p>
+        <div class="sub">Nepracujeme s každou firmou. Ale tam, kde pracujeme, nepřinášíme jen výrok. Přinášíme pohled, který pomáhá firmě růst. Pokud hledáte nejlevnějšího auditora – pravděpodobně existují lepší volby. Pokud hledáte nejlepší – čtěte dál.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TOUHA ─── -->
+<section class="desire-section">
+  <div class="section-inner">
+    <div class="eyebrow fade">Jak by to mohlo vypadat</div>
+    <h2 class="display fade">Chtěli byste…</h2>
+
+    <div class="desire-cards">
+      <div class="desire-card fade">
+        <span class="icon">🧩</span>
+        <h3>Audit, který dává smysl celé firmě</h3>
+        <p>Nejen suchý výrok, ale zpětnou vazbu na procesy, upozornění na slabá místa a doporučení, jak se zlepšit. Výstup, který management skutečně otevře a číst.</p>
+      </div>
+      <div class="desire-card fade">
+        <span class="icon">🤝</span>
+        <h3>Přímý kontakt s auditním týmem</h3>
+        <p>Žádná call centra, žádné přeposílání e-mailů. Vždy víte, kdo na vašem auditu pracuje, a máte na něj přímý kontakt. Rychlá reakce, lidský přístup.</p>
+      </div>
+      <div class="desire-card fade">
+        <span class="icon">🌍</span>
+        <h3>Jistotu, že IFRS není problém</h3>
+        <p>Pokud expandujete nebo reportujete mateřské společnosti v zahraničí, chcete auditora, který IFRS zná zevnitř – ne takového, který se to teprve učí na vašem účtu.</p>
+      </div>
+      <div class="desire-card fade">
+        <span class="icon">🛡️</span>
+        <h3>Klid před bankou i investory</h3>
+        <p>Vaše závěrka obstojí i pod nejpřísnějším pohledem. Žádné nepříjemné otázky, žádné pochybnosti. Jen čistý výrok od auditora, kterému věří i ti druzí.</p>
+      </div>
+      <div class="desire-card fade">
+        <span class="icon">📅</span>
+        <h3>Termíny, které se drží</h3>
+        <p>Bez zbytečného prodlužování, bez překvapení na poslední chvíli. Společně nastavíme harmonogram a ten se dodržuje – z obou stran.</p>
+      </div>
+      <div class="desire-card fade">
+        <span class="icon">🔭</span>
+        <h3>Partnera, který vidí dál než k uzávěrce</h3>
+        <p>Zákonná povinnost jako příležitost. Audit, který otvírá rozhovor o optimalizaci procesů, kontrolních mechanismech a zdraví firmy v dlouhodobém horizontu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BOLEST ─── -->
+<section class="pain-section">
+  <div class="section-inner">
+    <div class="eyebrow fade">Ale momentálně…</div>
+    <h2 class="display fade">Možná to teď<br>vypadá jinak.</h2>
+    <p class="pain-intro fade">Toto není kritika. Je to popis situace, kterou slýcháme od firem, než s námi začnou spolupracovat.</p>
+
+    <div class="pain-list">
+      <div class="pain-item">
+        <div class="num">01</div>
+        <p>Každý rok přijde auditní tým, projede šanony, odešle výrok – a vy máte pocit, že jste za to <strong>zaplatili, ale nic nedostali.</strong> Žádný komentář k procesům, žádné doporučení.</p>
+      </div>
+      <div class="pain-item">
+        <div class="num">02</div>
+        <p>Komunikace probíhá přes juniorního pracovníka, který <strong>přeposílá e-maily seniorovi</strong>, ten je přeposílá manažerovi – a odpověď přichází za týden. Pokud vůbec.</p>
+      </div>
+      <div class="pain-item">
+        <div class="num">03</div>
+        <p>Termíny se posouvají. Závěrka je hotová o <strong>tři týdny později než bylo dohodnuto</strong> – a výmluvy jsou vždy připravené.</p>
+      </div>
+      <div class="pain-item">
+        <div class="num">04</div>
+        <p>Banka chce závěrku auditovanou auditorem z uznávané firmy. Investorovi to nestačí. <strong>Přitom stejný výstup by mohl obstát u obou</strong> – kdyby byl připraven správně.</p>
+      </div>
+      <div class="pain-item">
+        <div class="num">05</div>
+        <p>Máte skupinový reporting do Vídně nebo Frankfurtu a váš lokální auditor se tváří, že <strong>IFRS je raketová věda,</strong> které rozumí maximálně teoreticky.</p>
+      </div>
+    </div>
+
+    <div class="pain-bridge fade">
+      <p>„Problém není ve vaší firmě. Problém je v tom, kdo na vašem auditu pracuje. A to je věc, kterou lze změnit."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SLUŽBY ─── -->
+<section class="services-section">
+  <div class="section-inner">
+    <div class="eyebrow fade">Co přesně nabízíme</div>
+    <h2 class="display fade">Získáte víc než<br>auditorskou zprávu.</h2>
+
+    <div class="services-grid fade">
+      <div class="service-card">
+        <div class="tag">Zákonný audit</div>
+        <h3>Audit účetní závěrky</h3>
+        <p>Statutární audit dle legislativy ČR nebo IFRS. Ověření výroční zprávy a zprávy o vztazích. Doporučení k obsahu závěrky a přílohy – co musí být, co by mělo být.</p>
+      </div>
+      <div class="service-card">
+        <div class="tag">Skupiny</div>
+        <h3>Audit konsolidované závěrky</h3>
+        <p>Konsolidace dle ČR GAAP i IFRS. Koordinace s auditními týmy v zahraničí v rámci skupiny TPA ve 12 zemích. Jeden tým, jedna odpovědnost.</p>
+      </div>
+      <div class="service-card">
+        <div class="tag">Dobrovolný audit</div>
+        <h3>Dobrovolný audit & due diligence</h3>
+        <p>Audit pro banky, investory nebo vlastníky – i když zákon nepřikazuje. Příprava na prodej firmy, akvizici nebo vstup nového společníka.</p>
+      </div>
+      <div class="service-card">
+        <div class="tag">IFRS</div>
+        <h3>IFRS audit & převod výkaznictví</h3>
+        <p>Audit i poradenství při přechodu z ČR GAAP na IFRS. Skupinový reporting pro mateřské společnosti v zahraničí. Mluvíme jazykem mezinárodního byznysu.</p>
+      </div>
+      <div class="service-card">
+        <div class="tag">Prověrky</div>
+        <h3>Prověrky a ověření</h3>
+        <p>Review účetní závěrky, prověrky interim reportů, ověření nefinančních informací (ESG reporting, zprávy o udržitelnosti).</p>
+      </div>
+      <div class="service-card">
+        <div class="tag">Nad rámec</div>
+        <h3>Audit s přidanou hodnotou</h3>
+        <p>Upozornění na slabá místa v interních kontrolách. Komentář k procesům. Doporučení, která management může skutečně použít. Výstup, který se nečte jen jednou.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROČ TPA ─── -->
+<section class="why-section">
+  <div class="section-inner">
+    <div class="eyebrow fade">Proč TPA</div>
+    <h2 class="display fade">Čtyři důvody,<br>proč si nás vybrat.</h2>
+
+    <div class="why-grid fade">
+      <div class="why-list">
+        <div class="why-item">
+          <div class="num-badge">01</div>
+          <div>
+            <h4>Audit s přesahem</h4>
+            <p>Nejen výrok. Upozorňujeme na rizika, doporučujeme řešení a otevíráme prostor pro zlepšení. Výstup, který firmě skutečně pomáhá.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="num-badge">02</div>
+          <div>
+            <h4>Záruka kvality</h4>
+            <p>Zkušení profesionálové s letitou praxí. Preciznost a individuální přístup jako standard – ne jako slogan.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="num-badge">03</div>
+          <div>
+            <h4>Face to Face přístup</h4>
+            <p>Každý klient je jedinečný. Nepracujeme podle šablon. Máte vždy přímý kontakt s auditním týmem – žádné přeposílání, žádné čekání.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="num-badge">04</div>
+          <div>
+            <h4>Mezinárodní síť Baker Tilly</h4>
+            <p>Jsme součástí Top 10 globální poradenské sítě. 12 zemí CEE & SEE, 2 050+ odborníků. Tam, kde expandujete, tam jsme i my.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-visual">
+        <div class="stat-big">
+          <div class="n">od 1993</div>
+          <div class="l">Poskytujeme audit v České republice. Tři dekády zkušeností.</div>
+        </div>
+        <div class="stat-big">
+          <div class="n">12 zemí</div>
+          <div class="l">Skupiny TPA napříč CEE & SEE. Jeden tým, mezinárodní dosah.</div>
+        </div>
+        <div class="stat-big">
+          <div class="n">2 050+</div>
+          <div class="l">Odborníků ve skupině TPA. Váš tým je součástí něčeho většího.</div>
+        </div>
+        <div class="stat-big">
+          <div class="n">Top 10</div>
+          <div class="l">Globální síť Baker Tilly. Mezinárodní standard, osobní přístup.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FORMULÁŘ ─── -->
+<section class="form-section" id="poptavka">
+  <div class="section-inner">
+    <div class="form-layout">
+
+      <div class="form-left fade">
+        <div class="eyebrow">Poptejte audit</div>
+        <h2 class="display">Začněme<br>rozhovorem.</h2>
+        <p class="intro">Vyplňte formulář nebo nám rovnou zavolejte. Ozveme se do 24 hodin a domluvíme nezávaznou konzultaci – bezplatnou, bez tlaku, bez závazků.</p>
+
+        <div class="contact-direct">
+          <div class="contact-item">
+            <div class="ci-icon">📞</div>
+            <div>
+              <a href="tel:+420222826311">+420 222 826 311</a>
+              <div class="sub">Po–Pá, 8:00–17:00</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">✉️</div>
+            <div>
+              <a href="mailto:office@tpa-group.cz">office@tpa-group.cz</a>
+              <div class="sub">Odpovídáme do 24 hodin</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">📍</div>
+            <div>
+              <span style="font-weight:500;">Praha 4 · Ostrava · Opava · Zlín</span>
+              <div class="sub">Antala Staška 2027/79, 140 00 Praha 4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card fade">
+        <h3>Nezávazná poptávka</h3>
+        <p class="form-sub">Žádný závazek. Jen první krok ke správnému rozhodnutí.</p>
+
+        <div class="fg-row">
+          <div class="fg">
+            <label>Jméno a příjmení *</label>
+            <input type="text" placeholder="Jan Novák">
+          </div>
+          <div class="fg">
+            <label>Název společnosti *</label>
+            <input type="text" placeholder="ABC s.r.o.">
+          </div>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg">
+            <label>E-mail *</label>
+            <input type="email" placeholder="jan@firma.cz">
+          </div>
+          <div class="fg">
+            <label>Telefon</label>
+            <input type="tel" placeholder="+420 ">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Vaše pozice ve firmě</label>
+          <select>
+            <option value="">Vyberte...</option>
+            <option>CFO / Finanční ředitel</option>
+            <option>Hlavní účetní / Controller</option>
+            <option>Majitel / Jednatel</option>
+            <option>Člen představenstva</option>
+            <option>Jiné</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>O které služby máte zájem?</label>
+          <div class="services-check" id="servicesCheck">
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>Audit účetní závěrky
+            </label>
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>Konsolidovaný audit
+            </label>
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>IFRS audit
+            </label>
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>Dobrovolný audit
+            </label>
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>Due diligence
+            </label>
+            <label class="check-item" onclick="toggleCheck(this)">
+              <input type="checkbox"><div class="cb-box"></div>ESG / nefinanční
+            </label>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Co potřebujete řešit? (volitelné)</label>
+          <textarea placeholder="Popište stručně situaci, termíny nebo specifické požadavky…"></textarea>
+        </div>
+
+        <div class="fg">
+          <label>Jak jste se o nás dozvěděli?</label>
+          <select>
+            <option value="">Vyberte...</option>
+            <option>Doporučení od kolegy / partnera</option>
+            <option>Vyhledávač (Google apod.)</option>
+            <option>LinkedIn</option>
+            <option>Webinář TPA</option>
+            <option>Newsletter TPA</option>
+            <option>Ebook / publikace TPA</option>
+            <option>Odborné médium / článek</option>
+            <option>Jiné</option>
+          </select>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Odeslat poptávku →</button>
+        <p class="form-disclaimer">Odesláním souhlasíte se zpracováním osobních údajů dle GDPR. Vaše data jsou v bezpečí a nebudou sdílena s třetími stranami.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fl">tpa</div>
+  <p>TPA Czech Republic · Antala Staška 2027/79, 140 00 Praha 4 · <a href="tel:+420222826311">+420 222 826 311</a> · <a href="mailto:office@tpa-group.cz">office@tpa-group.cz</a></p>
+  <p>© 2026 TPA Czech Republic. Informace vycházejí z legislativy k 1. 1. 2026.</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade, .pain-item').forEach(el => observer.observe(el));
+
+  // Checkbox toggle
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+  }
+
+  // Form submit
+  function handleSubmit() {
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = '✓ Poptávka odeslána – ozveme se do 24 hodin';
+    btn.disabled = true;
+    btn.style.background = '#0F6E56';
+  }
+</script>
+</body>
+</html>
